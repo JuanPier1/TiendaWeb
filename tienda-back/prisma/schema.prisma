@@ -1,0 +1,48 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "mysql"
+}
+
+model categoria {
+  id       Int        @id @default(autoincrement())
+  nombre   String     @unique(map: "Categoria_nombre_key")
+  registro DateTime   @default(now())
+  producto producto[]
+}
+
+model producto {
+  id          Int       @id @default(autoincrement())
+  nombre      String    @unique(map: "Producto_nombre_key")
+  precio      Float     @default(0)
+  stock       Int       @default(0)
+  registro    DateTime  @default(now())
+  categoriaId Int
+  categoria   categoria @relation(fields: [categoriaId], references: [id], map: "Producto_categoriaId_fkey")
+
+  @@index([categoriaId], map: "Producto_categoriaId_fkey")
+}
+
+model tarjeta {
+  id                               Int      @id @default(autoincrement())
+  usuario                          Int
+  numero                           Int
+  cvv                              Int
+  vencimiento                      DateTime
+  usuario_tarjeta_usuarioTousuario usuario  @relation("tarjeta_usuarioTousuario", fields: [usuario], references: [id], map: "Tarjeta_usuario_fkey")
+
+  @@index([usuario], map: "Tarjeta_usuario_fkey")
+}
+
+model usuario {
+  id                               Int       @id @default(autoincrement())
+  nombre                           String
+  apellidos                        String
+  correo                           String    @unique(map: "Usuario_correo_key")
+  clave                            String
+  registro                         DateTime  @default(now())
+  tarjeta_tarjeta_usuarioTousuario tarjeta[] @relation("tarjeta_usuarioTousuario")
+}
