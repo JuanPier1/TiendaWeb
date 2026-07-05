@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { login } from '../services/authService';
+import { useAuth } from '../context/AuthContext.jsx';
 
 function Login() {
     const [email, setEmail] = useState('');
@@ -8,7 +9,9 @@ function Login() {
     const [errores, setErrores] = useState({});
     const [errorApi, setErrorApi] = useState('');
     const [cargando, setCargando] = useState(false);
+    const { iniciarSesion } = useAuth();
     const navigate = useNavigate();
+    const location = useLocation();
 
     const validar = () => {
         const nuevosErrores = {};
@@ -27,24 +30,26 @@ function Login() {
     };
 
     const handleSubmit = async (e) => {
-    e.preventDefault();
-    //console.log({ email, pass });
-    setErrorApi('');
+        e.preventDefault();
+        //console.log({ email, pass });
+        setErrorApi('');
 
-    if (!validar()) return;
-    setCargando(true);
+        if (!validar()) return;
+        setCargando(true);
 
-    try {
-        const { usuario, token } = await login(email, pass);
-        localStorage.setItem('token', token);
-        localStorage.setItem('usuario', JSON.stringify(usuario));
-        navigate('/');
-    } catch (err) {
-        setErrorApi(err.response?.data?.error || 'Error al iniciar sesión');
-    } finally {
-        setCargando(false);
-    }
-};
+        try {
+            const { usuario, token } = await login(email, pass);
+            iniciarSesion(usuario, token);
+            //navigate('/');
+            const destino = location.state?.from?.pathname || '/';
+            navigate(destino, { replace: true });
+        } catch (err) {
+            setErrorApi(err.response?.data?.error || 'Error al iniciar sesión');
+            //console.error('Error completo:', err);
+        } finally {
+            setCargando(false);
+        }
+    };
 
 return (
     <div className="min-h-[80vh] flex items-center justify-center px-4">

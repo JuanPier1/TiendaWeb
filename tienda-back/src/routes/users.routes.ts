@@ -1,57 +1,122 @@
 import { Router, type Request, type Response } from 'express';
-import { prisma } from "../../lib/prisma";
+import { prisma } from "../lib/prisma";
+import { verificarToken, type AuthRequest } from "../middlewares/auth.middleware";
 
 const router: Router = Router();
 
 //Un usuario
-router.get("/usuarios/:id", async (req, res) => {
+router.get("/usuarios/:id", verificarToken, async (req: AuthRequest, res: Response) => {
+    const { id } = req.params;
+
+    if (typeof id !== "string") {
+        return res.status(400).json({ error: "Falta el id" });
+    }
+
+    if (!req.usuarioId) {
+        return res.status(401).json({ error: "No autorizado" });
+    }
+
+    const idSolicitado = parseInt(id);
+
+    if (idSolicitado !== req.usuarioId) {
+        return res.status(403).json({ error: "Usuario: No autorizado" });
+    }
+    
     const usuario = await prisma.usuario.findFirst({
         where: {
-            id: parseInt(req.params.id)
+            id: parseInt(id)
         },
         include: {
             tarjeta_tarjeta_usuarioTousuario: true
         }
     })
-    res.send(usuario);
-})
 
-//Varios usuarios
-router.get("/usuarios", async (req, res) => {
-    const usuarios = await prisma.usuario.findMany()
-    res.json(usuarios);
+    if (!usuario) {
+        return res.status(404).json({ error: "Usuario: no encontrado" });
+    }
+
+    //res.send(usuario);
+    const { clave: _, ...usuarioSinClave } = usuario;
+    res.json(usuarioSinClave);
 });
 
-//Agregar
-router.post("/usuarios", async (req, res) => {
+//Varios usuarios  *Solo Dev*
+{/*  
+router.get("/usuarios", verificarToken, async (req: AuthRequest, res: Response) => {
+    const usuarios = await prisma.usuario.findMany()
+    const usuariosSinClave = usuarios.map(({ clave, ...resto }) => resto);
+    res.json(usuariosSinClave);
+    //res.json(usuarios);
+});
+*/}
+
+//Agregar *Solo Dev*
+{/* 
+router.post("/usuarios", verificarToken, async (req: Request, res: Response) => {
     const newUsuario = await prisma.usuario.create({
         data: req.body,
     })
-    return res.json(newUsuario)
+    const { clave, ...usuarioSinClave } = newUsuario;
+    res.json(usuarioSinClave);
+    //return res.json(newUsuario)
 });
+*/}
 
 //Modificar
-router.put("/usuarios/:id", async (req, res) => {
+router.put("/usuarios/:id", verificarToken, async (req: AuthRequest, res: Response) => {
+    const { id } = req.params;
+
+    if (typeof id !== "string") {
+        return res.status(400).json({ error: "Falta el id" });
+    }
+
+    if (!req.usuarioId) {
+        return res.status(401).json({ error: "No autorizado" });
+    }
+
+    const idSolicitado = parseInt(id);
+
+    if (idSolicitado !== req.usuarioId) {
+        return res.status(403).json({ error: "No puedes modificar otro usuario" });
+    }
+
+    //Rehashear
+    const { clave, ...datosPermitidos } = req.body;
+
     const updateUsuario = await prisma.usuario.update({
         where: {
-            id: parseInt(req.params.id)
+            id: idSolicitado
         },
-        data: req.body
+        data: datosPermitidos
     })
-    return res.json(updateUsuario);
-})
+    
+    const { clave: _, ...usuarioSinClave } = updateUsuario;
+    return res.json(usuarioSinClave);
+    //return res.json(updateUsuario);
+});
 
 //Eliminar
-router.delete("/usuarios/:id", async (req, res) => {
-    const delUsuario = await prisma.usuario.delete({
-        where: {
-            id: parseInt(req.params.id)
-        }
-    });
-    if(!delUsuario){
-        return res.status(404).json({ error: "404 not found"});
+router.delete("/usuarios/:id", verificarToken, async (req: AuthRequest, res: Response) => {
+    const { id } = req.params;
+
+    if (typeof id !== "string") {
+        return res.status(400).json({ error: "Falta el id" });
     }
-    return res.json(delUsuario);
+
+    if (!req.usuarioId) {
+        return res.status(401).json({ error: "No autorizado" });
+    }
+
+    const idSolicitado = parseInt(id);
+
+    if (idSolicitado !== req.usuarioId) {
+        return res.status(403).json({ error: "No puedes eliminar otro usuario" });
+    }
+    
+    await prisma.usuario.delete({ where: { id: idSolicitado } });
+    
+    res.json({ mensaje: "Usuario eliminado" });
+    //return res.json(delUsuario);
 })
 
 export default router

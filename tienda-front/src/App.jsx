@@ -5,18 +5,27 @@ import heroImg from './assets/hero.png'
 import './App.css'
 */
 import { Routes, Route } from 'react-router-dom';
-import { MainLayout, Login, Registro, ListaCompras, Perfil, MisTarjetas, AgregarTarjeta } from './indexBarrel.js'
+import { MainLayout, Login, Registro, ListaCompras, Perfil, MisTarjetas, AgregarTarjeta, ProtectedRoute } from './indexBarrel.js'
+import Carrito from './pages/Carrito.jsx';
+
+
 
 function App() {
   return (
     <Routes>
       <Route element={<MainLayout />}>
+        {/* Rutas públicas */}
         <Route path="/" element={<ListaCompras />} />
         <Route path="/login" element={<Login />} />
         <Route path="/registro" element={<Registro />} />
-        <Route path="/perfil" element={<Perfil />} />
-        <Route path="/tarjetas" element={<MisTarjetas />} />
-        <Route path="/tarjetas/agregar" element={<AgregarTarjeta />} />
+
+        {/* Rutas privadas */}
+        <Route element={<ProtectedRoute />}>
+          <Route path="/perfil" element={<Perfil />} />
+          <Route path="/tarjetas" element={<MisTarjetas />} />
+          <Route path="/tarjetas/agregar" element={<AgregarTarjeta />} />
+          <Route path="/carrito" element={<Carrito />} />
+        </Route>
       </Route>
       //Errores
       <Route

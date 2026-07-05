@@ -8,8 +8,7 @@ return (
         <Navbar />
 
         <main className='flex-1'>
-            {/*Outlet es donde React Router va a "inyectar" la página activa.
-            Así el Navbar y el Footer no se repiten en cada página.*/}
+            {/*Outlet es donde React Router va a "inyectar" la página activa.*/}
             <Outlet />
         </main>
 

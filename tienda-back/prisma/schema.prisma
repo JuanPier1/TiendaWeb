@@ -19,6 +19,7 @@ model producto {
   nombre      String    @unique(map: "Producto_nombre_key")
   precio      Float     @default(0)
   stock       Int       @default(0)
+  imagen      String?
   registro    DateTime  @default(now())
   categoriaId Int
   categoria   categoria @relation(fields: [categoriaId], references: [id], map: "Producto_categoriaId_fkey")
@@ -29,9 +30,10 @@ model producto {
 model tarjeta {
   id                               Int      @id @default(autoincrement())
   usuario                          Int
-  numero                           Int
-  cvv                              Int
-  vencimiento                      DateTime
+  titular                          String
+  numero                           String
+  cvv                              String
+  vencimiento                      String
   usuario_tarjeta_usuarioTousuario usuario  @relation("tarjeta_usuarioTousuario", fields: [usuario], references: [id], map: "Tarjeta_usuario_fkey")
 
   @@index([usuario], map: "Tarjeta_usuario_fkey")
@@ -43,6 +45,8 @@ model usuario {
   apellidos                        String
   correo                           String    @unique(map: "Usuario_correo_key")
   clave                            String
+  telefono                         String?
+  direccion                        String?
   registro                         DateTime  @default(now())
   tarjeta_tarjeta_usuarioTousuario tarjeta[] @relation("tarjeta_usuarioTousuario")
 }

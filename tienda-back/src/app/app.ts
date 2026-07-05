@@ -19,6 +19,7 @@ app.use('/api', usuarios)
 app.use('/api', tarjetas)
 app.use('/api', productos)
 app.use('/api', categorias)
+app.use("/static", express.static("public"));
 
 app.get("/", (req, res) => {
     res.send("App");

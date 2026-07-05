@@ -1,57 +1,85 @@
 import { Router, type Request, type Response } from 'express';
-import { prisma } from "../../lib/prisma";
+import { prisma } from "../lib/prisma";
 
 const router: Router = Router();
 
 //Una categoria
-router.get("/categorias/:id", async (req, res) => {
+router.get("/categorias/:id", async (req: Request, res: Response) => {
+    const { id } = req.params;
+
+    if (typeof id !== "string") {
+        return res.status(400).json({ error: "Falta el id" });
+    }
+    
     const categoria = await prisma.categoria.findFirst({
         where: {
-            id: parseInt(req.params.id)
+            id: parseInt(id)
         },
         include: {
             producto: true
         }
     })
-    res.send(categoria);
+
+    if (!categoria) {
+        return res.status(404).json({ error: "Categoría no encontrada" });
+    }
+
+    res.json(categoria);
+    //res.send(categoria);
 })
 
 //Varias categorias
-router.get("/categorias", async (req, res) => {
+router.get("/categorias", async (req: Request, res: Response) => {
     const categorias = await prisma.categoria.findMany()
     res.json(categorias);
 });
 
 //Agregar
-router.post("/categorias", async (req, res) => {
+router.post("/categorias", async (req: Request, res: Response) => {
     const newcategoria = await prisma.categoria.create({
         data: req.body,
-    })
-    return res.json(newcategoria)
+    });
+
+    res.json(newcategoria);
 });
 
 //Modificar
-router.put("/categorias/:id", async (req, res) => {
+router.put("/categorias/:id", async (req: Request, res: Response) => {
+    const { id } = req.params;
+
+    if (typeof id !== "string") {
+        return res.status(400).json({ error: "Falta el id" });
+    }
+    
     const updatecategoria = await prisma.categoria.update({
         where: {
-            id: parseInt(req.params.id)
+            id: parseInt(id)
         },
         data: req.body
     })
-    return res.json(updatecategoria);
+    
+    res.json(updatecategoria);
 })
 
 //Eliminar
 router.delete("/categorias/:id", async (req, res) => {
-    const delcategoria = await prisma.categoria.delete({
-        where: {
-            id: parseInt(req.params.id)
-        }
-    });
-    if(!delcategoria){
-        return res.status(404).json({ error: "404 not found"});
+    const { id } = req.params;
+
+    if (typeof id !== "string") {
+        return res.status(400).json({ error: "Falta el id" });
     }
-    return res.json(delcategoria);
+    
+    try {
+        const delCategoria = await prisma.categoria.delete({
+        where: { id: parseInt(id) },
+        });
+        res.json(delCategoria);
+    } catch (error: any) {
+        if (error.code === "P2025") {
+            return res.status(404).json({ error: "Categoría no encontrada" });
+        } throw error;
+    }
+    //return res.json(delcategoria);
 })
 
 export default router
