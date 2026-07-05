@@ -11,13 +11,7 @@
   "keywords": [],
   "author": "JuJoDev",
   "license": "ISC",
-  "devEngines": {
-    "packageManager": {
-      "name": "pnpm",
-      "version": "^11.9.0",
-      "onFail": "download"
-    }
-  },
+  "packageManager": "pnpm@11.10.0",
   "type": "module",
   "devDependencies": {
     "@types/bcryptjs": "^3.0.0",
