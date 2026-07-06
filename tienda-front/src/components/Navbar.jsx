@@ -15,9 +15,14 @@ function Navbar() {
 return (
     <nav className="bg-white shadow-md sticky top-0 z-50">
         <div className="max-w-6xl mx-auto px-4 flex items-center justify-between h-16">
-        <Link to="/" className="text-xl font-bold text-blue-600">
-            MexShop
-        </Link>
+        
+        <div className='flex items-center gap-x-2'>
+            <img src='/flag-mexico.svg' width={50} height={40} />
+        
+            <Link to="/" className="text-xl font-bold text-blue-600">
+                MexShop
+            </Link>
+        </div>
 
         <div className="hidden md:flex items-center gap-6">
             <Link to="/" className="text-gray-700 hover:text-blue-600 transition-colors">

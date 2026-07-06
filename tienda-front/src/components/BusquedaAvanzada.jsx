@@ -46,6 +46,7 @@ return (
         <option value="consolas">Consolas</option>
         <option value="juegos">Juegos</option>
         <option value="accesorios">Accesorios</option>
+        <option value="accesorios">Electrónicos</option>
         </select>
     </div>
 
